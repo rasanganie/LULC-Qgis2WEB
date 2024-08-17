@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/cmclu_1.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[6.854350564375116,79.77013145608221],[6.986862102071226,79.94646701760053]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_GoogleMaps_0');
+        map.getPane('pane_GoogleMaps_0').style.zIndex = 400;
+        var layer_GoogleMaps_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleMaps_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_GoogleMaps_0;
+        map.addLayer(layer_GoogleMaps_0);
+        function pop_cmclu_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ID'] !== null ? autolinker.link(feature.properties['ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['WARD_NO'] !== null ? autolinker.link(feature.properties['WARD_NO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['BLOCK_NO'] !== null ? autolinker.link(feature.properties['BLOCK_NO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['EXTENT'] !== null ? autolinker.link(feature.properties['EXTENT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LU_CODE'] !== null ? autolinker.link(feature.properties['LU_CODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Descriptio'] !== null ? autolinker.link(feature.properties['Descriptio'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Nolli'] !== null ? autolinker.link(feature.properties['Nolli'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_cmclu_1_0(feature) {
+            switch(String(feature.properties['Descriptio'])) {
+                case 'Administration':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(118,237,208,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Apartments':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(102,212,157,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Automobile parking':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(121,217,217,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Automobile repair & workshops':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(239,71,239,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Banking & allied':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(233,112,75,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Beach':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(142,233,44,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Cemetry':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(190,127,211,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Cinemas & amusements':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(226,70,151,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Community organisations':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(67,101,202,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Defense use':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(212,131,55,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Education':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(205,53,170,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Filled land':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(147,123,217,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Harbour':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(123,195,219,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Health':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(123,195,219,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Homestead':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(212,70,108,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Hotels & guesthouses':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(153,232,125,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Inland wetland':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(61,141,221,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Manufacturing':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(29,238,82,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Other institutional':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(235,116,118,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Parks & playgrounds':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(137,45,229,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Primary production':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(214,212,59,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Railway':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(206,172,77,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Religious':
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(46,215,43,1.0)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_cmclu_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(186,237,16,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_cmclu_1');
+        map.getPane('pane_cmclu_1').style.zIndex = 401;
+        map.getPane('pane_cmclu_1').style['mix-blend-mode'] = 'normal';
+        var layer_cmclu_1 = new L.geoJson(json_cmclu_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_cmclu_1',
+            layerName: 'layer_cmclu_1',
+            pane: 'pane_cmclu_1',
+            onEachFeature: pop_cmclu_1,
+            style: style_cmclu_1_0,
+        });
+        bounds_group.addLayer(layer_cmclu_1);
+        map.addLayer(layer_cmclu_1);
+        var baseMaps = {};
+        var overlaysTree = [
+            {label: 'cmclu<br /><table><tr><td style="text-align: center;"><img src="legend/cmclu_1_Administration0.png" /></td><td>Administration</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Apartments1.png" /></td><td>Apartments</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Automobileparking2.png" /></td><td>Automobile parking</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Automobilerepairworkshops3.png" /></td><td>Automobile repair & workshops</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Bankingallied4.png" /></td><td>Banking & allied</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Beach5.png" /></td><td>Beach</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Cemetry6.png" /></td><td>Cemetry</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Cinemasamusements7.png" /></td><td>Cinemas & amusements</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Communityorganisations8.png" /></td><td>Community organisations</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Defenseuse9.png" /></td><td>Defense use</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Education10.png" /></td><td>Education</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Filledland11.png" /></td><td>Filled land</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Harbour12.png" /></td><td>Harbour</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Health13.png" /></td><td>Health</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Homestead14.png" /></td><td>Homestead</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Hotelsguesthouses15.png" /></td><td>Hotels & guesthouses</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Inlandwetland16.png" /></td><td>Inland wetland</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Manufacturing17.png" /></td><td>Manufacturing</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Otherinstitutional18.png" /></td><td>Other institutional</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Parksplaygrounds19.png" /></td><td>Parks & playgrounds</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Primaryproduction20.png" /></td><td>Primary production</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Railway21.png" /></td><td>Railway</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_Religious22.png" /></td><td>Religious</td></tr><tr><td style="text-align: center;"><img src="legend/cmclu_1_23.png" /></td><td></td></tr></table>', layer: layer_cmclu_1},
+            {label: "Google Maps", layer: layer_GoogleMaps_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"BLOCK_NO": "int","WARD_NO": "int","ID": "int","Descriptio": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_BLOCK_NO = document.createElement("div");
+            div_BLOCK_NO.id = "div_BLOCK_NO";
+            div_BLOCK_NO.className = "slider";
+            document.getElementById("menu").appendChild(div_BLOCK_NO);
+            var lab_BLOCK_NO = document.createElement('div');
+            lab_BLOCK_NO.innerHTML  = 'BLOCK_NO: <span id="val_BLOCK_NO"></span>';
+            lab_BLOCK_NO.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_BLOCK_NO);
+            var reset_BLOCK_NO = document.createElement('div');
+            reset_BLOCK_NO.innerHTML = 'clear filter';
+            reset_BLOCK_NO.className = 'filterlabel';
+            lab_BLOCK_NO.className = 'filterlabel';
+            reset_BLOCK_NO.onclick = function() {
+                sel_BLOCK_NO.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_BLOCK_NO);
+            var sel_BLOCK_NO = document.getElementById('div_BLOCK_NO');
+            noUiSlider.create(sel_BLOCK_NO, {
+                connect: true,
+                start: [0, 64],
+                step: 1,
+                format: wNumb({
+                    decimals: 0,
+                    }),
+                range: {
+                min: 0,
+                max: 64
+                }
+            });
+            sel_BLOCK_NO.noUiSlider.on('update', function (values) {
+            filterVals =[];
+            for (value in values){
+            filterVals.push(parseInt(value))
+            }
+            val_BLOCK_NO = document.getElementById('val_BLOCK_NO');
+            val_BLOCK_NO.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_WARD_NO = document.createElement("div");
+            div_WARD_NO.id = "div_WARD_NO";
+            div_WARD_NO.className = "slider";
+            document.getElementById("menu").appendChild(div_WARD_NO);
+            var lab_WARD_NO = document.createElement('div');
+            lab_WARD_NO.innerHTML  = 'WARD_NO: <span id="val_WARD_NO"></span>';
+            lab_WARD_NO.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_WARD_NO);
+            var reset_WARD_NO = document.createElement('div');
+            reset_WARD_NO.innerHTML = 'clear filter';
+            reset_WARD_NO.className = 'filterlabel';
+            lab_WARD_NO.className = 'filterlabel';
+            reset_WARD_NO.onclick = function() {
+                sel_WARD_NO.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_WARD_NO);
+            var sel_WARD_NO = document.getElementById('div_WARD_NO');
+            noUiSlider.create(sel_WARD_NO, {
+                connect: true,
+                start: [0, 47],
+                step: 1,
+                format: wNumb({
+                    decimals: 0,
+                    }),
+                range: {
+                min: 0,
+                max: 47
+                }
+            });
+            sel_WARD_NO.noUiSlider.on('update', function (values) {
+            filterVals =[];
+            for (value in values){
+            filterVals.push(parseInt(value))
+            }
+            val_WARD_NO = document.getElementById('val_WARD_NO');
+            val_WARD_NO.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_ID = document.createElement("div");
+            div_ID.id = "div_ID";
+            div_ID.className = "slider";
+            document.getElementById("menu").appendChild(div_ID);
+            var lab_ID = document.createElement('div');
+            lab_ID.innerHTML  = 'ID: <span id="val_ID"></span>';
+            lab_ID.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_ID);
+            var reset_ID = document.createElement('div');
+            reset_ID.innerHTML = 'clear filter';
+            reset_ID.className = 'filterlabel';
+            lab_ID.className = 'filterlabel';
+            reset_ID.onclick = function() {
+                sel_ID.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_ID);
+            var sel_ID = document.getElementById('div_ID');
+            noUiSlider.create(sel_ID, {
+                connect: true,
+                start: [0, 1],
+                step: 1,
+                format: wNumb({
+                    decimals: 0,
+                    }),
+                range: {
+                min: 0,
+                max: 1
+                }
+            });
+            sel_ID.noUiSlider.on('update', function (values) {
+            filterVals =[];
+            for (value in values){
+            filterVals.push(parseInt(value))
+            }
+            val_ID = document.getElementById('val_ID');
+            val_ID.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Descriptio = document.createElement('div');
+            div_Descriptio.id = "div_Descriptio";
+            div_Descriptio.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Descriptio);
+            sel_Descriptio = document.createElement('select');
+            sel_Descriptio.multiple = true;
+            sel_Descriptio.size = 10;
+            sel_Descriptio.id = "sel_Descriptio";
+            var Descriptio_options_str = "<option value='' unselected></option>";
+            sel_Descriptio.onchange = function(){filterFunc()};
+            Descriptio_options_str  += '<option value="NULL">NULL</option>';
+            Descriptio_options_str  += '<option value="Administration">Administration</option>';
+            Descriptio_options_str  += '<option value="Apartments">Apartments</option>';
+            Descriptio_options_str  += '<option value="Automobile parking">Automobile parking</option>';
+            Descriptio_options_str  += '<option value="Automobile repair & workshops">Automobile repair & workshops</option>';
+            Descriptio_options_str  += '<option value="Banking & allied">Banking & allied</option>';
+            Descriptio_options_str  += '<option value="Beach">Beach</option>';
+            Descriptio_options_str  += '<option value="Cemetry">Cemetry</option>';
+            Descriptio_options_str  += '<option value="Cinemas & amusements">Cinemas & amusements</option>';
+            Descriptio_options_str  += '<option value="Community organisations">Community organisations</option>';
+            Descriptio_options_str  += '<option value="Defense use">Defense use</option>';
+            Descriptio_options_str  += '<option value="Education">Education</option>';
+            Descriptio_options_str  += '<option value="Filled land">Filled land</option>';
+            Descriptio_options_str  += '<option value="Harbour">Harbour</option>';
+            Descriptio_options_str  += '<option value="Health">Health</option>';
+            Descriptio_options_str  += '<option value="Homestead">Homestead</option>';
+            Descriptio_options_str  += '<option value="Hotels & guesthouses">Hotels & guesthouses</option>';
+            Descriptio_options_str  += '<option value="Inland wetland">Inland wetland</option>';
+            Descriptio_options_str  += '<option value="Manufacturing">Manufacturing</option>';
+            Descriptio_options_str  += '<option value="Other institutional">Other institutional</option>';
+            Descriptio_options_str  += '<option value="Parks & playgrounds">Parks & playgrounds</option>';
+            Descriptio_options_str  += '<option value="Primary production">Primary production</option>';
+            Descriptio_options_str  += '<option value="Railway">Railway</option>';
+            Descriptio_options_str  += '<option value="Religious">Religious</option>';
+            sel_Descriptio.innerHTML = Descriptio_options_str;
+            div_Descriptio.appendChild(sel_Descriptio);
+            var lab_Descriptio = document.createElement('div');
+            lab_Descriptio.innerHTML = 'Descriptio';
+            lab_Descriptio.className = 'filterlabel';
+            div_Descriptio.appendChild(lab_Descriptio);
+            var reset_Descriptio = document.createElement('div');
+            reset_Descriptio.innerHTML = 'clear filter';
+            reset_Descriptio.className = 'filterlabel';
+            reset_Descriptio.onclick = function() {
+                var options = document.getElementById("sel_Descriptio").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Descriptio.appendChild(reset_Descriptio);
+        </script>
+    </body>
+</html>
